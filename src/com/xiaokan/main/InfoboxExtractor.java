@@ -1,4 +1,4 @@
-package com.xiaokan.utils;
+package com.xiaokan.main;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -17,7 +17,7 @@ import org.apache.tools.bzip2.CBZip2InputStream;
 import com.csvreader.CsvWriter;
 import com.xiaokan.config.DataConstants;
 
-public class SmallDatasetGenerator {
+public class InfoboxExtractor {
 
 	/**
 	 * @param args
@@ -30,18 +30,25 @@ public class SmallDatasetGenerator {
 	private static boolean debug = false;
 	private static String pre = "<title>", suf = "</title>";
 	private static String sep = System.getProperty("line.separator");
+	private static String foutPath = "infobox.csv";
 
 	public static void main(String[] args) throws Exception {
 		if (args.length > 0) {
-			debug = true;
+			for (String str : args) {
+				if ("--debug".equals(str)) {
+					debug = true;
+				} else if (str.startsWith("-Path=")) {
+					foutPath = str.substring(str.indexOf("-Path="));
+				}
+			}
 		}
 		// CSV Fileout
-		fout = new CsvWriter("E:/ddd.csv", ',', Charset.forName("UTF-8"));
-		// for (String s3Path : DataConstants.filePaths) {
-		// String localPath = download(s3Path);
-		// processDataFile(localPath);
-		// }
-		processDataFile("e:/Datasets/Wikipedia/enwiki-20121001-pages-meta-current1.xml-p000000010p000010000.bz2");
+		fout = new CsvWriter(foutPath, ',', Charset.forName("UTF-8"));
+		for (String s3Path : DataConstants.filePaths) {
+			String localPath = download(s3Path);
+			processDataFile(localPath);
+		}
+		// processDataFile("e:/Datasets/Wikipedia/enwiki-20121001-pages-meta-current1.xml-p000000010p000010000.bz2");
 		fout.flush();
 		fout.close();
 
@@ -114,6 +121,7 @@ public class SmallDatasetGenerator {
 			}
 			fos.flush();
 			is.close();
+			fos.close();
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -124,8 +132,4 @@ public class SmallDatasetGenerator {
 
 	}
 
-	private static void processPage() {
-		// TODO Auto-generated method stub
-
-	}
 }
